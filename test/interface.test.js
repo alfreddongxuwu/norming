@@ -26,6 +26,11 @@ test("both sliders must be moved before submission", () => {
   assert.match(pluginSource, /moved\.size === inputs\.length/);
 });
 
+test("the rating page records one total response time", () => {
+  assert.match(pluginSource, /rt: Math\.round\(performance\.now\(\) - startTime\)/);
+  assert.doesNotMatch(pluginSource, /completion_rt|try_rt|firstMovementRt/);
+});
+
 test("the two rating questions are randomized once and shown in one trial", () => {
   assert.match(mainSource, /randomization\.shuffle/);
   assert.match(mainSource, /combinedRatingStimulus\(selectedCondition, questionOrder\)/);
@@ -87,7 +92,15 @@ test("completion screens omit the large Thank you heading and enlarge the two se
   assert.match(stylesSource, /\.completion-screen p,[\s\S]*?font-size:\s*1\.35rem/);
 });
 
-test("the prototype contains no external data transmission", () => {
-  assert.doesNotMatch(mainSource, /fetch\s*\(/);
-  assert.doesNotMatch(mainSource, /DataPipe|plugin-pipe/);
+test("data saving is restricted to complete Prolific sessions", () => {
+  assert.match(mainSource, /isCompleteProlificSession\(prolific\)/);
+  assert.match(mainSource, /conditional_function: \(\) => isDataCollectionSession/);
+  assert.match(mainSource, /collection_mode: isDataCollectionSession \? "pilot" : "preview"/);
+});
+
+test("responses are saved before the recorded completion screen", () => {
+  assert.ok(mainSource.indexOf("const saveData =") < mainSource.indexOf("const completion ="));
+  assert.match(mainSource, /JSON\.stringify\(buildParticipantRecord/);
+  assert.match(mainSource, /Saving your responses\. Please do not close this page\./);
+  assert.match(mainSource, /Your response has not been recorded\./);
 });

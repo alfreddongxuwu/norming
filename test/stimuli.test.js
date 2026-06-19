@@ -20,6 +20,8 @@ test("the design contains four unique item-by-prior conditions", () => {
 test("condition lookup only returns valid conditions", () => {
   assert.equal(conditionFromId("0")?.item, "photo");
   assert.equal(conditionFromId("3")?.prior, "low");
+  assert.equal(conditionFromId(null), undefined);
+  assert.equal(conditionFromId(""), undefined);
   assert.equal(conditionFromId("4"), undefined);
   assert.equal(conditionFromId("not-a-number"), undefined);
 });

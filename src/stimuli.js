@@ -102,6 +102,10 @@ export function combinedRatingStimulus(condition, questionOrder) {
 }
 
 export function conditionFromId(rawId) {
+  if (rawId === null || rawId === undefined || rawId === "") {
+    return undefined;
+  }
+
   const id = Number(rawId);
   return Number.isInteger(id) ? CONDITIONS.find((condition) => condition.id === id) : undefined;
 }

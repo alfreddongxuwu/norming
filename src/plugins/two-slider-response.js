@@ -15,10 +15,9 @@ export default class TwoSliderResponsePlugin {
       },
     },
     data: {
+      rt: { type: ParameterType.INT },
       completion_rating: { type: ParameterType.INT },
       try_rating: { type: ParameterType.INT },
-      completion_rt: { type: ParameterType.INT },
-      try_rt: { type: ParameterType.INT },
       question_order: { type: ParameterType.STRING, array: true },
     },
   };
@@ -36,14 +35,12 @@ export default class TwoSliderResponsePlugin {
     const inputs = [...displayElement.querySelectorAll(".rating-slider")];
     const nextButton = displayElement.querySelector("#two-slider-next");
     const moved = new Set();
-    const firstMovementRt = {};
     const startTime = performance.now();
 
     for (const input of inputs) {
       input.addEventListener("input", () => {
         const questionType = input.dataset.questionType;
         moved.add(questionType);
-        firstMovementRt[questionType] ??= Math.round(performance.now() - startTime);
         input.closest(".rating-control").classList.add("has-response");
 
         if (moved.size === inputs.length) {
@@ -58,13 +55,11 @@ export default class TwoSliderResponsePlugin {
       );
 
       this.jsPsych.finishTrial({
+        rt: Math.round(performance.now() - startTime),
         completion_rating: values.completion,
         try_rating: values.try,
-        completion_rt: firstMovementRt.completion,
-        try_rt: firstMovementRt.try,
         question_order: inputs.map((input) => input.dataset.questionType),
       });
     });
   }
 }
-
