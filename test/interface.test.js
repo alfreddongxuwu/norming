@@ -85,10 +85,13 @@ test("consent response choices have visible space between them", () => {
   );
 });
 
-test("completion screens omit the large Thank you heading and enlarge the two sentences", () => {
-  const completionStart = mainSource.indexOf("const completion =");
-  const completionSource = mainSource.slice(completionStart);
-  assert.doesNotMatch(completionSource, /<h1>Thank you<\/h1>/);
+test("the experiment ends on one static completion screen without a redundant Finish step", () => {
+  assert.doesNotMatch(mainSource, /const completion =|choices: \["Finish"\]/);
+  assert.doesNotMatch(mainSource, /<h1>Thank you<\/h1>/);
+  assert.match(
+    mainSource,
+    /Thank you for completing this study\. Your response has been recorded\./,
+  );
   assert.match(stylesSource, /\.completion-screen p,[\s\S]*?font-size:\s*1\.35rem/);
 });
 
@@ -99,7 +102,11 @@ test("data saving is restricted to complete Prolific sessions", () => {
 });
 
 test("responses are saved before the recorded completion screen", () => {
-  assert.ok(mainSource.indexOf("const saveData =") < mainSource.indexOf("const completion ="));
+  assert.ok(mainSource.indexOf("const saveData =") < mainSource.indexOf("jsPsych.run"));
+  assert.match(
+    mainSource,
+    /demographics,\s*saveLoop,\s*\]\);/,
+  );
   assert.match(mainSource, /JSON\.stringify\(buildParticipantRecord/);
   assert.match(mainSource, /Saving your responses\. Please do not close this page\./);
   assert.match(mainSource, /Your response has not been recorded\./);

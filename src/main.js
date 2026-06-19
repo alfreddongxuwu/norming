@@ -458,26 +458,6 @@ function runExperiment() {
     loop_function: () => !saveAccepted,
   };
 
-  const completion = {
-    type: HtmlButtonResponsePlugin,
-    stimulus: isDataCollectionSession
-      ? `
-          <section class="completion-screen">
-            <p>Thank you for completing this study. Your response has been recorded.</p>
-            <p>Please select “Finish” below.</p>
-          </section>
-        `
-      : `
-          <section class="completion-screen">
-            <p>Preview complete. No responses were saved.</p>
-            <p>Please select “Finish” below.</p>
-          </section>
-        `,
-    choices: ["Finish"],
-    save_trial_parameters: { stimulus: false },
-    data: { trial_kind: "completion" },
-  };
-
   jsPsych.run([
     consent,
     conditionAssignmentLoop,
@@ -485,7 +465,6 @@ function runExperiment() {
     ratings,
     demographics,
     saveLoop,
-    completion,
   ]);
 }
 
