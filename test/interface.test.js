@@ -88,10 +88,13 @@ test("consent response choices have visible space between them", () => {
 test("the experiment ends on one static completion screen without a redundant Finish step", () => {
   assert.doesNotMatch(mainSource, /const completion =|choices: \["Finish"\]/);
   assert.doesNotMatch(mainSource, /<h1>Thank you<\/h1>/);
-  assert.match(
-    mainSource,
-    /Thank you for completing this study\. Your response has been recorded\./,
+  assert.equal(
+    mainSource.match(
+      /Thank you for completing this study\. Your response has been recorded\./g,
+    )?.length,
+    2,
   );
+  assert.doesNotMatch(mainSource, /Preview complete\. No responses were saved\./);
   assert.match(stylesSource, /\.completion-screen p,[\s\S]*?font-size:\s*1\.35rem/);
 });
 

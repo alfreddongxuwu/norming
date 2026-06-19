@@ -74,7 +74,7 @@ function runExperiment() {
             `
           : `
               <section class="experiment-column static-completion">
-                <p>Preview complete. No responses were saved.</p>
+                <p>Thank you for completing this study. Your response has been recorded.</p>
                 <p>You may now close this window.</p>
               </section>
             `
