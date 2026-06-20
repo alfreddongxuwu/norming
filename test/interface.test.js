@@ -70,6 +70,17 @@ test("the reading instruction is regular while the scenario text is bold", () =>
   assert.doesNotMatch(readingInstructionRule, /font-weight:\s*700/);
 });
 
+test("the instructions page emphasizes only", () => {
+  assert.match(
+    mainSource,
+    /Please respond based <strong>only<\/strong> on the information in the description\./,
+  );
+  assert.doesNotMatch(
+    mainSource,
+    /Please respond based only on the information in the description\./,
+  );
+});
+
 test("consent emphasizes the duration number and the quoted affirmative choice", () => {
   assert.match(mainSource, /about <strong>5 minutes<\/strong>/);
   assert.match(

@@ -328,7 +328,7 @@ function runExperiment() {
       <section class="instruction-screen">
         <h1>Instructions</h1>
         <p>You will read one short description of an everyday situation.</p>
-        <p>You will then answer two questions using sliders. There are no right or wrong answers. Please respond based only on the information in the description.</p>
+        <p>You will then answer two questions using sliders. There are no right or wrong answers. Please respond based <strong>only</strong> on the information in the description.</p>
         <p class="question-text"><strong>Are you ready to begin?</strong></p>
       </section>
     `,
