@@ -260,7 +260,7 @@ function runExperiment() {
         <p>You will be paid through Prolific according to the payment information shown on the Prolific study page. To help us process payment and verify participation, we will collect your Prolific participant ID and basic technical information associated with the survey submission. We will not ask for your name, address, phone number, or other direct identifying information in the survey.</p>
         <p>Your responses will be used for research purposes. Data may be analyzed, presented, or shared in scientific contexts, but results will be reported in summary form and will not identify you personally. Because this is an online study, complete confidentiality cannot be guaranteed, but the research team will take reasonable steps to protect the data.</p>
         <p>This study has been reviewed by The Ohio State University Institutional Review Board. The study number is 2024B0317. If you have questions about the study, please contact Dongxu Wu at wu.6734@osu.edu. If you have questions about your rights as a research participant, or if you have questions, concerns, or suggestions that you do not feel comfortable discussing with the researcher, you may contact The Ohio State University Office of Responsible Research Practices at 614-688-8457 or 800-678-6251.</p>
-        <p>By selecting <strong>“Yes, I agree to participate”</strong> and continuing to the survey, you confirm that you are at least 18 years old, that you have read this information, and that you voluntarily agree to participate in this research study.</p>
+        <p>By selecting <strong>"Yes, I agree to participate"</strong> and continuing to the survey, you confirm that you are at least 18 years old, that you have read this information, and that you voluntarily agree to participate in this research study.</p>
         <p class="question-text"><strong>Do you agree to participate?</strong></p>
       </section>
     `,
@@ -385,8 +385,8 @@ function runExperiment() {
             <option value="high-school">High school diploma or equivalent</option>
             <option value="some-college">Some college, no degree</option>
             <option value="associate">Associate degree</option>
-            <option value="bachelor">Bachelor’s degree</option>
-            <option value="master">Master’s degree</option>
+            <option value="bachelor">Bachelor's degree</option>
+            <option value="master">Master's degree</option>
             <option value="doctoral-professional">Doctoral or professional degree</option>
             <option value="prefer-not-to-say">Prefer not to say</option>
           </select>

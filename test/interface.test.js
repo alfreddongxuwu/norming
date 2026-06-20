@@ -85,7 +85,7 @@ test("consent emphasizes the duration number and the quoted affirmative choice",
   assert.match(mainSource, /about <strong>5 minutes<\/strong>/);
   assert.match(
     mainSource,
-    /selecting <strong>“Yes, I agree to participate”<\/strong> and continuing/,
+    /selecting <strong>"Yes, I agree to participate"<\/strong> and continuing/,
   );
 });
 
