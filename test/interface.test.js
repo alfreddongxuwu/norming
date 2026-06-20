@@ -95,13 +95,15 @@ test("the experiment ends on one static completion screen without a redundant Fi
     1,
   );
   assert.doesNotMatch(mainSource, /Preview complete\. No responses were saved\./);
+  assert.doesNotMatch(mainSource, /You may now close this window\./);
+  assert.match(mainSource, /You should be redirected to Prolific automatically\./);
   assert.match(stylesSource, /\.completion-screen p,[\s\S]*?font-size:\s*1\.35rem/);
 });
 
 test("data saving is restricted to complete Prolific sessions", () => {
   assert.match(mainSource, /isCompleteProlificSession\(prolific\)/);
   assert.match(mainSource, /conditional_function: \(\) => isDataCollectionSession/);
-  assert.match(mainSource, /collection_mode: isDataCollectionSession \? "pilot" : "preview"/);
+  assert.match(mainSource, /collection_mode: isDataCollectionSession \? "main" : "preview"/);
 });
 
 test("responses are saved before the recorded completion screen", () => {
@@ -130,4 +132,18 @@ test("the repeat-session storage key is initialized before stored sessions are r
     mainSource.indexOf("let submissionId =") <
       mainSource.indexOf("let storedSession = readStoredSession()"),
   );
+});
+
+test("completion screens redirect to the matching Prolific target", () => {
+  assert.match(
+    mainSource,
+    /PROLIFIC_COMPLETION_URL\s*=\s*\n\s*"https:\/\/app\.prolific\.com\/submissions\/complete\?cc=C1GHDDD8"/,
+  );
+  assert.match(mainSource, /PROLIFIC_PREVIEW_URL\s*=\s*"https:\/\/www\.prolific\.com\/"/);
+  assert.match(mainSource, /PROLIFIC_REDIRECT_DELAY_MS\s*=\s*1200/);
+  assert.match(mainSource, /Return to Prolific/);
+  assert.match(mainSource, /isDataCollectionSession \? PROLIFIC_COMPLETION_URL : PROLIFIC_PREVIEW_URL/);
+  assert.match(mainSource, /window\.location\.assign\(prolificReturnUrl\(\)\)/);
+  assert.match(mainSource, /consentGiven && saveAccepted/);
+  assert.match(stylesSource, /\.return-to-prolific\s*\{[\s\S]*?display:\s*inline-block/);
 });

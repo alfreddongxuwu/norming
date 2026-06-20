@@ -243,6 +243,11 @@ select:focus-visible,
   line-height: 1.6;
 }
 
+.return-to-prolific {
+  display: inline-block;
+  text-decoration: none;
+}
+
 @media (max-width: 900px) {
   .jspsych-content,
   .experiment-column {

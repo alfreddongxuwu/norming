@@ -25,9 +25,13 @@ import {
   conditionFromId,
 } from "./stimuli.js";
 
-const STUDY_VERSION = "norming-0.2.0-pilot";
-const SESSION_STORAGE_KEY = "norming-pilot-session-v2";
-const LOCAL_STORAGE_KEY_PREFIX = "norming-pilot-session-v2:";
+const STUDY_VERSION = "norming-1.0.0-main";
+const SESSION_STORAGE_KEY = "norming-main-session-v1";
+const LOCAL_STORAGE_KEY_PREFIX = "norming-main-session-v1:";
+const PROLIFIC_COMPLETION_URL =
+  "https://app.prolific.com/submissions/complete?cc=C1GHDDD8";
+const PROLIFIC_PREVIEW_URL = "https://www.prolific.com/";
+const PROLIFIC_REDIRECT_DELAY_MS = 1200;
 const root = document.querySelector("#experiment-root");
 const query = new URLSearchParams(window.location.search);
 const prolific = prolificParametersFromSearch(query);
@@ -69,6 +73,7 @@ function runExperiment() {
 
   if (storedSession?.saveAccepted) {
     renderStaticScreen(recordedCompletionContent());
+    scheduleProlificRedirect();
     return;
   }
 
@@ -85,6 +90,10 @@ function runExperiment() {
           `;
 
       renderStaticScreen(finalContent);
+
+      if (consentGiven && saveAccepted) {
+        scheduleProlificRedirect();
+      }
 
       if (!isDataCollectionSession && consentGiven) {
         console.info(
@@ -104,7 +113,7 @@ function runExperiment() {
   jsPsych.data.addProperties({
     participant_uuid: participantUuid,
     study_version: STUDY_VERSION,
-    collection_mode: isDataCollectionSession ? "pilot" : "preview",
+    collection_mode: isDataCollectionSession ? "main" : "preview",
     prolific_pid: isDataCollectionSession ? prolific.prolificPid : null,
     prolific_study_id: isDataCollectionSession ? prolific.studyId : null,
     prolific_session_id: isDataCollectionSession ? prolific.sessionId : null,
@@ -129,12 +138,29 @@ function runExperiment() {
   persistSession({ participantUuid, questionOrder });
 
   function recordedCompletionContent() {
+    const returnUrl = prolificReturnUrl();
+
     return `
       <section class="experiment-column static-completion">
         <p>Thank you for completing this study. Your response has been recorded.</p>
-        <p>You may now close this window.</p>
+        <p>You should be redirected to Prolific automatically.</p>
+        <p>
+          <a class="jspsych-btn return-to-prolific" href="${returnUrl}">
+            Return to Prolific
+          </a>
+        </p>
       </section>
     `;
+  }
+
+  function prolificReturnUrl() {
+    return isDataCollectionSession ? PROLIFIC_COMPLETION_URL : PROLIFIC_PREVIEW_URL;
+  }
+
+  function scheduleProlificRedirect() {
+    window.setTimeout(() => {
+      window.location.assign(prolificReturnUrl());
+    }, PROLIFIC_REDIRECT_DELAY_MS);
   }
 
   function renderStaticScreen(content) {

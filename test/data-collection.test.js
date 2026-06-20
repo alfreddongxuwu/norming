@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  DATAPIPE_EXPERIMENT_ID,
   buildParticipantRecord,
   conditionIdFromPipeResult,
   dataFilename,
@@ -12,11 +13,15 @@ import {
   submissionIdFromProlificParameters,
 } from "../src/data-collection.js";
 
+test("the production DataPipe experiment ID is configured", () => {
+  assert.equal(DATAPIPE_EXPERIMENT_ID, "RPkcoguw3w0u");
+});
+
 test("raw jsPsych trials are reduced to one participant-level record", () => {
   const shared = {
     participant_uuid: "123e4567-e89b-12d3-a456-426614174000",
-    study_version: "norming-0.2.0-pilot",
-    collection_mode: "pilot",
+    study_version: "norming-1.0.0-main",
+    collection_mode: "main",
     prolific_pid: "participant-1",
     prolific_study_id: "study-2",
     prolific_session_id: "session-3",
