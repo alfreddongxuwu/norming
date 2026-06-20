@@ -124,3 +124,10 @@ test("complete Prolific sessions reuse one anonymized save target across repeats
   assert.match(mainSource, /parsed\?\.prolificPid === prolific\.prolificPid/);
   assert.match(mainSource, /parsed\?\.sessionId === prolific\.sessionId/);
 });
+
+test("the repeat-session storage key is initialized before stored sessions are read", () => {
+  assert.ok(
+    mainSource.indexOf("let submissionId =") <
+      mainSource.indexOf("let storedSession = readStoredSession()"),
+  );
+});

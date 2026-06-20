@@ -55,11 +55,12 @@ if (hasAnyProlific && !isDataCollectionSession) {
 
 function runExperiment() {
   const previewCondition = conditionFromId(query.get("condition"));
+  let submissionId = isDataCollectionSession
+    ? submissionIdFromProlificParameters(prolific)
+    : undefined;
   let storedSession = readStoredSession();
   const participantUuid = storedSession?.participantUuid ?? crypto.randomUUID();
-  const submissionId =
-    (isDataCollectionSession && submissionIdFromProlificParameters(prolific)) ||
-    participantUuid;
+  submissionId ??= participantUuid;
   let consentGiven = false;
   let assignmentFailed = false;
   let saveAccepted = !isDataCollectionSession;
