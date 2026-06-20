@@ -9,6 +9,7 @@ import {
   isCompleteProlificSession,
   prolificParametersFromSearch,
   saveErrorCode,
+  submissionIdFromProlificParameters,
 } from "../src/data-collection.js";
 
 test("raw jsPsych trials are reduced to one participant-level record", () => {
@@ -134,9 +135,32 @@ test("failed or ambiguous saves are rejected with a safe error code", () => {
   assert.equal(saveErrorCode(new Error("offline")), "NETWORK_OR_UNKNOWN_ERROR");
 });
 
-test("the OSF filename contains only the generated participant UUID", () => {
+test("Prolific submission IDs are deterministic and do not expose raw identifiers", () => {
+  const identifiers = {
+    prolificPid: "participant-1",
+    studyId: "study-2",
+    sessionId: "session-3",
+  };
+  const submissionId = submissionIdFromProlificParameters(identifiers);
+
+  assert.match(submissionId, /^prolific_[0-9a-f]{16}$/);
+  assert.equal(submissionId, submissionIdFromProlificParameters(identifiers));
+  assert.notEqual(
+    submissionId,
+    submissionIdFromProlificParameters({ ...identifiers, sessionId: "session-4" }),
+  );
+  assert.equal(submissionId.includes(identifiers.prolificPid), false);
+  assert.equal(submissionId.includes(identifiers.studyId), false);
+  assert.equal(submissionId.includes(identifiers.sessionId), false);
   assert.equal(
-    dataFilename("123e4567-e89b-12d3-a456-426614174000"),
-    "norming_123e4567-e89b-12d3-a456-426614174000.json",
+    submissionIdFromProlificParameters({ ...identifiers, sessionId: "" }),
+    undefined,
+  );
+});
+
+test("the OSF filename is derived from the anonymized submission ID", () => {
+  assert.equal(
+    dataFilename("prolific_1a2b3c4d5e6f7890"),
+    "norming_prolific_1a2b3c4d5e6f7890.json",
   );
 });

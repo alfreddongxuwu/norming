@@ -92,7 +92,7 @@ test("the experiment ends on one static completion screen without a redundant Fi
     mainSource.match(
       /Thank you for completing this study\. Your response has been recorded\./g,
     )?.length,
-    2,
+    1,
   );
   assert.doesNotMatch(mainSource, /Preview complete\. No responses were saved\./);
   assert.match(stylesSource, /\.completion-screen p,[\s\S]*?font-size:\s*1\.35rem/);
@@ -113,4 +113,14 @@ test("responses are saved before the recorded completion screen", () => {
   assert.match(mainSource, /JSON\.stringify\(buildParticipantRecord/);
   assert.match(mainSource, /Saving your responses\. Please do not close this page\./);
   assert.match(mainSource, /Your response has not been recorded\./);
+});
+
+test("complete Prolific sessions reuse one anonymized save target across repeats", () => {
+  assert.match(mainSource, /submissionIdFromProlificParameters\(prolific\)/);
+  assert.match(mainSource, /filename:\s*dataFilename\(submissionId\)/);
+  assert.match(mainSource, /localStorage/);
+  assert.match(mainSource, /storedSession\?\.saveAccepted/);
+  assert.match(mainSource, /renderStaticScreen\(recordedCompletionContent\(\)\)/);
+  assert.match(mainSource, /parsed\?\.prolificPid === prolific\.prolificPid/);
+  assert.match(mainSource, /parsed\?\.sessionId === prolific\.sessionId/);
 });

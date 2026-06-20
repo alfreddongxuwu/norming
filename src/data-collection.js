@@ -7,6 +7,10 @@ export const PROLIFIC_PARAMETER_NAMES = Object.freeze([
   "SESSION_ID",
 ]);
 
+const FNV_OFFSET_BASIS_64 = 0xcbf29ce484222325n;
+const FNV_PRIME_64 = 0x100000001b3n;
+const FNV_64_MASK = 0xffffffffffffffffn;
+
 const ACCEPTED_SAVE_MESSAGES = new Set([
   "Success",
   "Data received. OSF upload will be retried automatically.",
@@ -28,6 +32,20 @@ export function hasAnyProlificParameter(parameters) {
 
 export function isCompleteProlificSession(parameters) {
   return Object.values(parameters).every((value) => value !== "");
+}
+
+export function submissionIdFromProlificParameters(parameters) {
+  if (!isCompleteProlificSession(parameters)) {
+    return undefined;
+  }
+
+  const submissionKey = [
+    parameters.prolificPid,
+    parameters.studyId,
+    parameters.sessionId,
+  ].join("\u001f");
+
+  return `prolific_${fnv1a64(submissionKey)}`;
 }
 
 export function conditionIdFromPipeResult(result, conditionCount) {
@@ -52,8 +70,19 @@ export function saveErrorCode(result) {
   return typeof result?.error === "string" ? result.error : "NETWORK_OR_UNKNOWN_ERROR";
 }
 
-export function dataFilename(participantUuid) {
-  return `norming_${participantUuid}.json`;
+export function dataFilename(submissionId) {
+  return `norming_${submissionId}.json`;
+}
+
+function fnv1a64(value) {
+  let hash = FNV_OFFSET_BASIS_64;
+
+  for (const character of value) {
+    hash ^= BigInt(character.codePointAt(0));
+    hash = (hash * FNV_PRIME_64) & FNV_64_MASK;
+  }
+
+  return hash.toString(16).padStart(16, "0");
 }
 
 export function buildParticipantRecord(trials) {

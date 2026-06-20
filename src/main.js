@@ -16,6 +16,7 @@ import {
   isCompleteProlificSession,
   prolificParametersFromSearch,
   saveErrorCode,
+  submissionIdFromProlificParameters,
 } from "./data-collection.js";
 import {
   CONDITIONS,
@@ -25,7 +26,8 @@ import {
 } from "./stimuli.js";
 
 const STUDY_VERSION = "norming-0.2.0-pilot";
-const SESSION_STORAGE_KEY = "norming-pilot-session-v1";
+const SESSION_STORAGE_KEY = "norming-pilot-session-v2";
+const LOCAL_STORAGE_KEY_PREFIX = "norming-pilot-session-v2:";
 const root = document.querySelector("#experiment-root");
 const query = new URLSearchParams(window.location.search);
 const prolific = prolificParametersFromSearch(query);
@@ -55,29 +57,25 @@ function runExperiment() {
   const previewCondition = conditionFromId(query.get("condition"));
   let storedSession = readStoredSession();
   const participantUuid = storedSession?.participantUuid ?? crypto.randomUUID();
+  const submissionId =
+    (isDataCollectionSession && submissionIdFromProlificParameters(prolific)) ||
+    participantUuid;
   let consentGiven = false;
   let assignmentFailed = false;
   let saveAccepted = !isDataCollectionSession;
   let selectedCondition;
   let assignmentSource;
 
+  if (storedSession?.saveAccepted) {
+    renderStaticScreen(recordedCompletionContent());
+    return;
+  }
+
   const jsPsych = initJsPsych({
     display_element: root,
     on_finish: () => {
       const finalContent = consentGiven
-        ? isDataCollectionSession
-          ? `
-              <section class="experiment-column static-completion">
-                <p>Thank you for completing this study. Your response has been recorded.</p>
-                <p>You may now close this window.</p>
-              </section>
-            `
-          : `
-              <section class="experiment-column static-completion">
-                <p>Thank you for completing this study. Your response has been recorded.</p>
-                <p>You may now close this window.</p>
-              </section>
-            `
+        ? recordedCompletionContent()
         : `
             <section class="experiment-column">
               <h1>Study ended</h1>
@@ -85,11 +83,7 @@ function runExperiment() {
             </section>
           `;
 
-      root.innerHTML = `
-        <div class="static-final-screen">
-          ${finalContent}
-        </div>
-      `;
+      renderStaticScreen(finalContent);
 
       if (!isDataCollectionSession && consentGiven) {
         console.info(
@@ -133,6 +127,23 @@ function runExperiment() {
 
   persistSession({ participantUuid, questionOrder });
 
+  function recordedCompletionContent() {
+    return `
+      <section class="experiment-column static-completion">
+        <p>Thank you for completing this study. Your response has been recorded.</p>
+        <p>You may now close this window.</p>
+      </section>
+    `;
+  }
+
+  function renderStaticScreen(content) {
+    root.innerHTML = `
+      <div class="static-final-screen">
+        ${content}
+      </div>
+    `;
+  }
+
   function applyCondition(condition, source) {
     selectedCondition = condition;
     assignmentSource = source;
@@ -157,14 +168,8 @@ function runExperiment() {
       return undefined;
     }
 
-    try {
-      const parsed = JSON.parse(sessionStorage.getItem(SESSION_STORAGE_KEY));
-      const matchesCurrentSession =
-        parsed?.studyId === prolific.studyId && parsed?.sessionId === prolific.sessionId;
-      return matchesCurrentSession ? parsed : undefined;
-    } catch {
-      return undefined;
-    }
+    return readBrowserStoredSession(sessionStorage, SESSION_STORAGE_KEY)
+      ?? readBrowserStoredSession(localStorage, localStorageKey());
   }
 
   function persistSession(updates) {
@@ -172,18 +177,48 @@ function runExperiment() {
       return;
     }
 
+    const persistentSession = readBrowserStoredSession(localStorage, localStorageKey());
+    const saveWasAccepted =
+      persistentSession?.saveAccepted || storedSession?.saveAccepted || updates.saveAccepted;
+
     storedSession = {
+      ...persistentSession,
       ...storedSession,
       ...updates,
+      prolificPid: prolific.prolificPid,
       studyId: prolific.studyId,
       sessionId: prolific.sessionId,
+      saveAccepted: saveWasAccepted || false,
     };
 
+    writeBrowserStoredSession(sessionStorage, SESSION_STORAGE_KEY, storedSession);
+    writeBrowserStoredSession(localStorage, localStorageKey(), storedSession);
+  }
+
+  function readBrowserStoredSession(storage, key) {
     try {
-      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(storedSession));
+      const parsed = JSON.parse(storage.getItem(key));
+      const matchesCurrentSession =
+        parsed?.prolificPid === prolific.prolificPid &&
+        parsed?.studyId === prolific.studyId &&
+        parsed?.sessionId === prolific.sessionId;
+
+      return matchesCurrentSession ? parsed : undefined;
+    } catch {
+      return undefined;
+    }
+  }
+
+  function writeBrowserStoredSession(storage, key, session) {
+    try {
+      storage.setItem(key, JSON.stringify(session));
     } catch {
       // The experiment can continue if browser storage is unavailable.
     }
+  }
+
+  function localStorageKey() {
+    return `${LOCAL_STORAGE_KEY_PREFIX}${submissionId}`;
   }
 
   const consent = {
@@ -417,7 +452,7 @@ function runExperiment() {
     type: PipePlugin,
     action: "save",
     experiment_id: DATAPIPE_EXPERIMENT_ID,
-    filename: dataFilename(participantUuid),
+    filename: dataFilename(submissionId),
     data_string: () => JSON.stringify(buildParticipantRecord(jsPsych.data.get().values())),
     wait_message: "<p>Saving your responses. Please do not close this page.</p>",
     data: { trial_kind: "data_save" },
