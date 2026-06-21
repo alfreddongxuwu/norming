@@ -82,8 +82,8 @@ function ratingControl(condition, questionType) {
         aria-label="${escapeHtml(plainQuestion)}"
       />
       <div class="slider-end-labels" aria-hidden="true">
-        <span>Very unlikely</span>
-        <span>Very likely</span>
+        <span>very unlikely</span>
+        <span>very likely</span>
       </div>
     </div>
   `;
