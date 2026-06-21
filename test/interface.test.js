@@ -11,7 +11,7 @@ const [mainSource, stylesSource, pluginSource] = await Promise.all([
 test("the slider uses the requested endpoint labels", () => {
   assert.match(stylesSource, /justify-content:\s*space-between/);
   const labelRule = stylesSource.match(/\.slider-end-labels\s*\{([^}]*)\}/)?.[1];
-  assert.match(labelRule, /font-weight:\s*400/);
+  assert.match(labelRule, /font-weight:\s*700/);
 });
 
 test("the experiment column is centered in the middle third and text is left aligned", () => {

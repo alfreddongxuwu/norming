@@ -171,7 +171,7 @@ select:focus-visible,
   margin-top: 0.55rem;
   color: #273746;
   font-size: var(--study-font-size);
-  font-weight: 400;
+  font-weight: 700;
 }
 
 #two-slider-next:disabled {
